@@ -5,30 +5,33 @@ import AuthContext from '@/data/context/AuthContext';
 import { Input } from '@/components/ui/input';
 import { Link } from 'react-router-dom';
 import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
-import { auth } from '@/data/db/firebase';
+import { auth, db } from '@/data/db/firebase';
 import { useNavigate } from 'react-router-dom';
 import { setDoc, doc } from 'firebase/firestore';
-import { db } from '@/data/db/firebase';
 
 const Log = () => {
+
     const navigate = useNavigate();
-    const { IsLogOpen, setIsLogOpen, SetIsSignOpen } = useContext(AuthContext);
+    const { IsLogOpen, SetIsLogOpen, SetIsSignOpen, SetCurrIsUserLogin, SetIsUserLogOut } = useContext(AuthContext);
 
     const [UserEmail, setUserEmail] = useState('');
     const [UserPassword, setUserPassword] = useState('');
-    const [error, setError] = useState(''); // State for error messages
+    const [error, setError] = useState(''); 
 
-    useEffect(() => {
+
+
+   useEffect(() => {
         const isUserLogin = localStorage.getItem('IsUserLogin');
         if (isUserLogin === 'true') {
             navigate('/')
             setIsLogOpen(false)
         }
-    }, [])
+    }, []) 
 
     const HandleRegister = () => {
         SetIsSignOpen(true);
     };
+
 
     const HandleLoginSubmit = async (e) => {
         e.preventDefault();
@@ -36,25 +39,32 @@ const Log = () => {
         try {
             const res = await signInWithEmailAndPassword(auth, UserEmail, UserPassword);
             localStorage.clear()
-            setIsLogOpen(false)
+            SetIsLogOpen(false)
             navigate('/')
             localStorage.setItem('IsUserLogin', true)
+            SetIsUserLogOut(false)
+            SetCurrIsUserLogin(true)
             localStorage.setItem('CurrentUserUid', res.user.uid);
 
 
         } catch (error) {
-            setError(error.message); // Set the error message
+            setError(error.message); 
             console.error('Login failed:', error.message);
         }
     };
 
+
     const handleGoogleSignIn = async () => {
         try {
+
             const provider = new GoogleAuthProvider();
             const result = await signInWithPopup(auth, provider);
 
             localStorage.clear();
-            localStorage.setItem('CurrentUserEmail', result.user.uid);
+            SetIsUserLogOut(false)
+            SetCurrIsUserLogin(true)
+            localStorage.setItem('IsUserLogin', true)
+
 
             await setDoc(doc(db, 'Users', result.user.uid), {
                 username: result.user.displayName,
@@ -62,9 +72,9 @@ const Log = () => {
                 photo: result.user.photoURL,
             });
 
-            setIsLogOpen(false);
+            SetIsLogOpen(false);
             navigate('/');
-            localStorage.setItem('IsUserLogin', true)
+
         } catch (err) {
             setError(err.message);
             console.error('Google Sign-In error:', err.message);
@@ -72,7 +82,7 @@ const Log = () => {
     };
 
     return (
-        <Dialog open={IsLogOpen} onOpenChange={setIsLogOpen} className="mx-5">
+        <Dialog open={IsLogOpen} onOpenChange={SetIsLogOpen} className="mx-5">
             <DialogContent className="sm:max-w-[425px] w-[90vw] p-6 rounded-lg shadow-lg bg-white flex flex-col gap-5">
                 {/* Dialog Header */}
                 <DialogHeader>
@@ -84,16 +94,13 @@ const Log = () => {
                     </p>
                 </DialogHeader>
 
-                {/* Error Message */}
                 {error && (
                     <div className="bg-red-100 text-red-800 p-2 mb-4 rounded-lg text-center">
                         {error}
                     </div>
                 )}
 
-                {/* Form */}
                 <form onSubmit={HandleLoginSubmit} className="flex flex-col gap-8">
-                    {/* Email Field */}
                     <div className="flex flex-col gap-2">
                         <Input
                             type="email"
@@ -103,7 +110,6 @@ const Log = () => {
                         />
                     </div>
 
-                    {/* Password Field */}
                     <div className="flex flex-col gap-2">
                         <Input
                             id="password"
@@ -114,7 +120,6 @@ const Log = () => {
                         />
                     </div>
 
-                    {/* Login Button */}
                     <div>
                         <Button type="submit" className="w-full">
                             Log In
@@ -122,14 +127,12 @@ const Log = () => {
                     </div>
                 </form>
 
-                {/* Or Divider */}
                 <div className="flex items-center gap-4">
                     <div className="flex-1 h-px bg-gray-300"></div>
                     <span className="text-sm text-gray-500">or</span>
                     <div className="flex-1 h-px bg-gray-300"></div>
                 </div>
 
-                {/* Sign In With Google */}
                 <div className="flex justify-center">
                     <button
                         onClick={handleGoogleSignIn}

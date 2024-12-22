@@ -5,22 +5,20 @@ import AuthContext from '@/data/context/AuthContext';
 
 const Header = () => {
     const {
-        IsLogOpen,
-        setIsLogOpen,
-        IsSignOpen,
+        SetIsLogOpen,
         SetIsSignOpen,
         IsSideBarOpen,
         SetIsSideBarOpen,
+        IsUserLogOut,
+        CurrIsUserLogin
     } = useContext(AuthContext);
 
-    const [isUserLogin, setIsUserLogin] = useState(false); 
-    const location = useLocation()
+    const [isUserLogin, setIsUserLogin] = useState(false);
 
+    const userLoginStatus = localStorage.getItem('IsUserLogin');
 
-    const userLoginStatus = localStorage.getItem('IsUserLogin'); 
-
-    const Handlelogin = () => {
-        setIsLogOpen(true);
+    const Handlelogin = async () => {
+        await SetIsLogOpen(true);
     };
 
     const HandleRegister = () => {
@@ -33,11 +31,11 @@ const Header = () => {
 
 
     useEffect(() => {
-     setIsUserLogin(userLoginStatus)
-    },[] );
+        setIsUserLogin(userLoginStatus)
+    }, [IsUserLogOut, CurrIsUserLogin]);
 
     return (
-        <header className="h-[10vh] bg-slate-50 shadow-sm flex items-center fixed top-0 w-full italic">
+        <header className="h-[10vh] italicc z-50 bg-slate-50 shadow-sm flex items-center fixed top-0 w-full italic">
             <div className="w-full flex justify-between items-center gap-10 sm:px-[2.5rem] px-5 py-[1rem] text-[1.50rem]">
                 {/* Sidebar toggle button */}
                 <div>
@@ -47,15 +45,12 @@ const Header = () => {
                     ></i>
                 </div>
 
-                {/* Conditional Rendering Based on User Login Status */}
                 {isUserLogin ? (
-                    // If user is logged in, show MyBlogs and Profile
                     <div className="sm:flex hidden items-center gap-10">
                         <span>My Blogs</span>
                         <span>Profile</span>
                     </div>
                 ) : (
-                    // If user is not logged in, show Login and Register links
                     <div className="sm:flex hidden items-center gap-10">
                         <span onClick={HandleRegister}>
                             <Link to="/Sign">Register</Link>

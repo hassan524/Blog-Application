@@ -17,12 +17,17 @@ import { setDataOfCurrentUser } from '@/data/redux/CurrentUserInfo';
 import { useDispatch, useSelector } from 'react-redux';
 
 const Sidebar = () => {
-  const { IsSideBarOpen, SetIsSideBarOpen, setIsLogOpen, SetIsSignOpen, isUserLogin, SetIsUserLogin } = useContext(AuthContext);
+
+  const { IsSideBarOpen, SetIsSideBarOpen, SetIsLogOpen, SetIsSignOpen, SetCurrIsUserLogin, SetIsUserLogOut } = useContext(AuthContext);
+
+
   const [CurrentUser, setCurrentUser] = useState(null);
-  const fileInputRef = useRef(null); // Ref for file input element
+
+  const fileInputRef = useRef(null);
+
   const dispatch = useDispatch();
+
   const data = useSelector((state) => state.data.data);
-  console.log(data)
 
   const userLoginStatus = localStorage.getItem('IsUserLogin') === 'true';
 
@@ -32,19 +37,28 @@ const Sidebar = () => {
         setCurrentUser(user);
         const docRef = doc(db, 'Users', user.uid);
         const docSnap = await getDoc(docRef);
-        dispatch(setDataOfCurrentUser(docSnap.data()));
-        // SetIsUserLogin(true); // Set user as logged in
+        
+        if (docSnap.exists()) {
+          dispatch(setDataOfCurrentUser({ 
+            ...docSnap.data(), 
+            id: user.uid 
+          }));
+        } else {
+          console.error("No such document!");
+        }
       } else {
         setCurrentUser(null);
-        SetIsUserLogin(false); // Set user as logged out
+        SetCurrIsUserLogin(false);
       }
     });
+  
+    return () => unsubscribe();
+  }, [dispatch]);
+  
+  
 
-    return () => unsubscribe(); // Clean up listener
-  }, []);
-
-  // Upload image to imgBB
   const uploadImageToImgBB = async (file) => {
+
     const formData = new FormData();
     formData.append('image', file);
 
@@ -58,23 +72,21 @@ const Sidebar = () => {
       return result.data.url;
     }
     return null;
+
   };
 
-  // Handle image click
   const handleImageClick = () => {
     fileInputRef.current.click();
   };
 
-  // Handle image change
   const handleImageChange = async (event) => {
     const file = event.target.files[0];
     if (file) {
-      const imageUrl = await uploadImageToImgBB(file); // Upload and get image URL
+      const imageUrl = await uploadImageToImgBB(file);
 
       if (imageUrl) {
-        const userRef = doc(db, 'Users', CurrentUser.uid); // Reference to user's Firestore doc
+        const userRef = doc(db, 'Users', CurrentUser.uid);
 
-        // Update Firestore with new photo URL
         try {
           await updateDoc(userRef, {
             photo: imageUrl,
@@ -89,27 +101,25 @@ const Sidebar = () => {
     }
   };
 
-  // Close sidebar
   const SidebarCloseHandler = () => {
-    SetIsSideBarOpen(!IsSideBarOpen); // Toggle sidebar visibility
+    SetIsSideBarOpen(!IsSideBarOpen);
   };
 
-  // Handle login
   const Handlelogin = () => {
-    setIsLogOpen(true); // Open login modal
+    SetIsLogOpen(true);
   };
 
-  // Handle register
   const HandleRegister = () => {
     SetIsSignOpen(true);
   };
 
-  // Handle logout
   const handleLogout = () => {
     signOut(auth)
       .then(() => {
         localStorage.clear();
         dispatch(setDataOfCurrentUser(null));
+        SetIsUserLogOut(true)
+        SetCurrIsUserLogin(false)
       })
       .catch((error) => {
         console.error('Error logging out:', error);
@@ -117,7 +127,7 @@ const Sidebar = () => {
   };
   return (
     <div
-      className={`bg-slate-50 sm:w-[20rem] w-[70vw] py-4 px-5 h-full fixed flex flex-col justify-between left-0 shadow-md ${IsSideBarOpen ? 'translate-x-[-100%]' : 'translate-x-0'
+      className={`bg-slate-50 z-50 sm:w-[20rem] w-[70vw] py-4 px-5 h-full fixed flex flex-col top-0 justify-between left-0 shadow-md ${IsSideBarOpen ? 'translate-x-[-100%]' : 'translate-x-0'
         } transition-all ease-out`}
     >
       {/* Top Section */}
@@ -129,19 +139,17 @@ const Sidebar = () => {
           ></i>
         </div>
 
-        {/* Conditional Rendering for User */}
         <div className="flex flex-col gap-4">
           {userLoginStatus ? (
-            // If user exists, show profile and "My Blogs" links
             <div className="flex flex-col gap-8">
               <div className="w-full flex flex-col items-center justify-center">
                 <div
                   className="w-32 h-32 bg-white rounded-full overflow-hidden cursor-pointer"
-                  onClick={handleImageClick} // Trigger file input on click
+                  onClick={handleImageClick}
                 >
                   <img
                     className="w-full h-full object-cover"
-                    src={data?.photo || '/NoUser.png'} // Use user's photo or fallback image
+                    src={data?.photo || '/NoUser.png'}
                     alt="User Profile"
                   />
                 </div>
@@ -150,10 +158,10 @@ const Sidebar = () => {
                   ref={fileInputRef}
                   className="hidden"
                   accept="image/*"
-                  onChange={handleImageChange} // Handle file change
+                  onChange={handleImageChange}
                 />
                 <input
-                  className="italicc mt-3 text-xl bg-transparent text-center underline"
+                  className="italicc mt-4 text-3xl text-primary bg-transparent text-center underline"
                   type="text"
                   value={data?.username || ' '}
                   disabled
@@ -161,35 +169,40 @@ const Sidebar = () => {
               </div>
             </div>
           ) : (
-            // If no user, show "Sign up" and "Log in" links
-            <div className='sm:hidden'>
+
+            <div className='italicc mt-5  flex gap-5 flex-col sm:hidden'>
               <Link to="/Sign">
                 <div
                   className="w-full flex items-center justify-between p-1 rounded-md cursor-pointer hover:bg-slate-100"
                   onClick={HandleRegister}
                 >
-                  <span>Sign up</span>
+                  <span className='text-3xl'>Sign up</span>
+                  <i class="bi bi-people text-2xl"></i>
                 </div>
+                <DropdownMenuSeparator />
               </Link>
               <Link to="/log">
                 <div
                   className="w-full flex items-center justify-between p-1 rounded-md cursor-pointer hover:bg-slate-100"
                   onClick={Handlelogin}
                 >
-                  <span>Log in</span>
+                  <span className='text-3xl'>Log in</span>
+                  <i class="bi bi-box-arrow-right text-2xl"></i>
                 </div>
+                <DropdownMenuSeparator />
               </Link>
             </div>
           )}
+
         </div>
       </div>
 
-      {/* Bottom Section */}
       <div className="w-full">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button className="w-full" variant="outline">
-              Setting
+             <span>Setting</span>
+             <i class="bi bi-gear"></i>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="bg-white shadow-md w-full min-w-[150px]">

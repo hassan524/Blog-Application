@@ -9,7 +9,8 @@ import { auth, db } from '@/data/db/firebase';
 import { setDoc, doc } from 'firebase/firestore';
 
 const Sign = () => {
-  const { setIsLogOpen, IsSignOpen, SetIsSignOpen } = useContext(AuthContext);
+  const { SetIsLogOpen, SetIsSignOpen, SetCurrIsUserLogin, SetIsUserLogOut, IsLogOpen, IsSignOpen } = useContext(AuthContext);
+
 
   const [showPass, setShowPass] = useState(false);
   const [showConfirmPass, setShowConfirmPass] = useState(false);
@@ -19,16 +20,23 @@ const Sign = () => {
   const [confirmPassword, setConfirmPassword] = useState(null);
   const [error, setError] = useState(null);
 
+
   const navigate = useNavigate();
 
   useEffect(() => {
+
     const isUserRegister = localStorage.getItem('IsUserRegister');
     if (isUserRegister === 'true') {
-      // Navigate to login page if user is already registered
       navigate('/log');
-      setIsLogOpen(true);
+      SetIsLogOpen(true);
     }
-  }, [navigate, setIsLogOpen]);
+
+  }, [navigate, SetIsLogOpen]);
+
+  const HandleLogin = () => {
+    SetIsLogOpen(true);
+};
+
 
   const togglePasswordVisibility = () => {
     setShowPass((prev) => !prev);
@@ -36,6 +44,7 @@ const Sign = () => {
   };
 
   const handleSignUp = async (e) => {
+
     e.preventDefault();
 
     if (userPassword !== confirmPassword) {
@@ -49,30 +58,35 @@ const Sign = () => {
       const userCredential = await createUserWithEmailAndPassword(auth, userEmail, userPassword);
       const userUid = userCredential.user.uid;
 
-      // Set IsUserRegister to true in localStorage after successful registration
       localStorage.setItem('IsUserRegister', true);
+
 
       await setDoc(doc(db, 'Users', userUid), {
         username,
         email: userEmail,
       });
 
-      // After registration, navigate to login route
+
       navigate('/log');
-      setIsLogOpen(true);
+      SetIsLogOpen(true);
 
     } catch (err) {
       setError(err.message);
+
     }
   };
 
   const handleGoogleSignIn = async () => {
+
     const provider = new GoogleAuthProvider();
     try {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
+      localStorage.setItem('IsUserLogin', true)
 
-      // Save user data to Firestore
+      SetIsUserLogOut(false)
+      SetCurrIsUserLogin(true)
+
       await setDoc(doc(db, 'Users', user.uid), {
         username: user.displayName,
         email: user.email,
@@ -82,9 +96,11 @@ const Sign = () => {
       SetIsSignOpen(false)
       navigate('/');
       localStorage.setItem('IsUserLogin', true)
+
     } catch (err) {
       setError(err.message);
     }
+
   };
 
   return (
@@ -158,7 +174,7 @@ const Sign = () => {
         <DialogFooter>
           <p className="text-center w-full">
             Already have an account?{' '}
-            <Link onClick={() => setIsLogOpen(true)} to="/log" className="text-primary font-semibold">
+            <Link onClick={HandleLogin} to="/log" className="text-primary font-semibold">
               Log In
             </Link>
           </p>
