@@ -1,4 +1,6 @@
 import React, { createContext, useState } from 'react';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '@/data/db/firebase';
 
 const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
@@ -6,10 +8,32 @@ export const AuthProvider = ({ children }) => {
   const [IsLogOpen, SetIsLogOpen] = useState(false);
   const [IsSignOpen, SetIsSignOpen] = useState(false)
   const [IsSideBarOpen, SetIsSideBarOpen] = useState(false)
-  
+
   const [IsUserLogOut, SetIsUserLogOut] = useState(false)
   const [CurrIsUserLogin, SetCurrIsUserLogin] = useState(false)
 
+  const [OpenUploadBlog, SetOpenUploadBlog] = useState(false)
+
+  const [IsBlogUpload, SetIsBlogUpload] = useState(false)
+
+  async function checkBlogs() {
+
+    try {
+      
+      const querySnapshot = await getDocs(collection(db, "posts"));
+
+      const blogs = await querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      return blogs
+
+    } catch (error) {
+      console.log(error)
+    }
+
+  }
 
   return (
 
@@ -25,7 +49,13 @@ export const AuthProvider = ({ children }) => {
         IsUserLogOut,
         SetIsUserLogOut,
         CurrIsUserLogin,
-        SetCurrIsUserLogin
+        SetCurrIsUserLogin,
+        OpenUploadBlog,
+        SetOpenUploadBlog,
+        IsBlogUpload,
+        SetIsBlogUpload,
+
+        checkBlogs // function
       }
 
     }>

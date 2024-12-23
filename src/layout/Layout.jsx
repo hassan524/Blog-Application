@@ -8,10 +8,10 @@ const Layout = () => {
   return (
     <>
 
-    
+
       <Header />
 
-      <Outlet />
+          <Outlet />
 
       <Sidebar />
 
