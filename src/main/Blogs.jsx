@@ -9,12 +9,12 @@ import { useNavigate } from 'react-router-dom';
 const Blogs = () => {
 
     const { OpenUploadBlog, SetOpenUploadBlog, SetIsBlogUpload, checkBlogs } = useContext(AuthContext);
-    // data of current user 
+
     const data = useSelector((state) => state.data.data);
 
-    const [BlogImage, SetBlogImage] = useState(null);         // blog image
-    const [BlogTitle, SetBlogTitle] = useState('');       // blog title
-    const [BlogContent, SetBlogContent] = useState('');   // blog content
+    const [BlogImage, SetBlogImage] = useState(null);         
+    const [BlogTitle, SetBlogTitle] = useState('');       
+    const [BlogContent, SetBlogContent] = useState('');   
 
     const navigate = useNavigate()
 
@@ -55,9 +55,9 @@ const Blogs = () => {
     const HandleBlogPost = async (e) => {
         e.preventDefault();
     
-        const uniquePostId = getUniqueId(); // Use the unique ID generator
+        const uniquePostId = getUniqueId(); 
     
-        if (BlogContent && BlogTitle) { // Check if title and content are present
+        if (BlogContent && BlogTitle) { 
             const now = new Date();
             const options = { month: "long", day: "numeric" };
             const formattedDate = new Intl.DateTimeFormat("en-US", options).format(now);
@@ -108,13 +108,13 @@ const Blogs = () => {
     return (
         <div>
             <Dialog open={OpenUploadBlog} onOpenChange={SetOpenUploadBlog}>
-                <DialogContent className='bg-white sm:w-[400px] w-[90vw] rounded-lg'>
+                <DialogContent className='bg-white dark:bg-gray-900 sm:w-[400px] w-[90vw] rounded-lg'>
                     <DialogHeader>
                         <DialogTitle>Upload Blog</DialogTitle>
                     </DialogHeader>
 
                     <form onSubmit={HandleBlogPost} className='flex flex-col gap-4 mt-5'>
-                        <div className="flex items-center bg-gray-100 border border-gray-300 rounded-md p-2 py-1x">
+                        <div className="flex items-center bg-gray-100 border border-gray-300 dark:border-gray-800 dark:bg-transparent rounded-md p-2 py-1x">
                             <input
                                 className='w-[90%] outline-none bg-transparent font-semibold'
                                 type="text"
@@ -133,12 +133,12 @@ const Blogs = () => {
                             />
                         </div>
                         <textarea
-                            className='bg-gray-100 outline-none px-2 py-3 text-sm text-gray-700'
+                            className='bg-gray-100 outline-none px-2 py-3 text-sm text-gray-700 dark:border-gray-800 dark:bg-transparent border dark:text-slate-500'
                             value={BlogContent}
                             onChange={(e) => SetBlogContent(e.target.value)}
                         ></textarea>
                         <button
-                            className='bg-gray-100 self-center px-[2.5rem] py-[8px] rounded-md'
+                            className='bg-gray-100 self-center px-[2.5rem] py-[8px] rounded-md dark:bg-background'
                             type='submit'>Post</button>
                     </form>
 

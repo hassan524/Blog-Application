@@ -16,17 +16,17 @@ const Log = () => {
 
     const [UserEmail, setUserEmail] = useState('');
     const [UserPassword, setUserPassword] = useState('');
-    const [error, setError] = useState(''); 
+    const [error, setError] = useState('');
 
 
 
-   useEffect(() => {
+    useEffect(() => {
         const isUserLogin = localStorage.getItem('IsUserLogin');
         if (isUserLogin === 'true') {
             navigate('/')
             setIsLogOpen(false)
         }
-    }, []) 
+    }, [])
 
     const HandleRegister = () => {
         SetIsSignOpen(true);
@@ -48,7 +48,7 @@ const Log = () => {
 
 
         } catch (error) {
-            setError(error.message); 
+            setError(error.message);
             console.error('Login failed:', error.message);
         }
     };
@@ -83,7 +83,7 @@ const Log = () => {
 
     return (
         <Dialog open={IsLogOpen} onOpenChange={SetIsLogOpen} className="mx-5">
-            <DialogContent className="sm:max-w-[425px] w-[90vw] p-6 rounded-lg shadow-lg bg-white flex flex-col gap-5">
+            <DialogContent className="sm:max-w-[425px] w-[90vw] p-6 rounded-lg shadow-lg bg-white dark:bg-gray-900 flex flex-col gap-5">
                 {/* Dialog Header */}
                 <DialogHeader>
                     <DialogTitle className="text-center text-2xl font-semibold text-primary">
@@ -107,6 +107,7 @@ const Log = () => {
                             placeholder="Email"
                             value={UserEmail}
                             onChange={(e) => setUserEmail(e.target.value)}
+                            className='dark:bg-transparent'
                         />
                     </div>
 
@@ -117,11 +118,12 @@ const Log = () => {
                             placeholder="Enter your password"
                             value={UserPassword}
                             onChange={(e) => setUserPassword(e.target.value)}
+                            className='dark:bg-transparent'
                         />
                     </div>
 
                     <div>
-                        <Button type="submit" className="w-full">
+                        <Button type="submit" className="w-full dark:bg-transparent dark:border dark:border-slate-300 dark:text-slate-50">
                             Log In
                         </Button>
                     </div>

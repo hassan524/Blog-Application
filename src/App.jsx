@@ -5,6 +5,7 @@ import Layout from './layout/Layout';
 import Log from './pages/log';
 import Sign from './pages/sign';
 import Blogs from './main/Blogs';
+import MyBlogs from './main/MyBlogs';
 
 const App = () => {
   return (
@@ -19,6 +20,10 @@ const App = () => {
           <Route path="/UploadBlogs" element={<Blogs />} />
 
         </Route>
+
+        <Route path="/MyBlogs" element={<MyBlogs/>} />
+
+
       </Routes>
     </AuthProvider>
   );

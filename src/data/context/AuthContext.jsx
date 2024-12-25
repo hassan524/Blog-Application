@@ -16,6 +16,11 @@ export const AuthProvider = ({ children }) => {
 
   const [IsBlogUpload, SetIsBlogUpload] = useState(false)
 
+  const [Users, SetUsers] = useState([])
+ 
+  const [IsDarkMode, SetIsDarkMode] = useState(true)
+
+
   async function checkBlogs() {
 
     try {
@@ -54,6 +59,10 @@ export const AuthProvider = ({ children }) => {
         SetOpenUploadBlog,
         IsBlogUpload,
         SetIsBlogUpload,
+        SetIsDarkMode,
+        IsDarkMode,
+        Users,
+        SetUsers,
 
         checkBlogs // function
       }

@@ -35,7 +35,7 @@ const Sign = () => {
 
   const HandleLogin = () => {
     SetIsLogOpen(true);
-};
+  };
 
 
   const togglePasswordVisibility = () => {
@@ -105,7 +105,7 @@ const Sign = () => {
 
   return (
     <Dialog open={IsSignOpen} onOpenChange={SetIsSignOpen} className="mx-5">
-      <DialogContent className="sm:max-w-[425px] w-[90vw] p-6 rounded-lg shadow-lg bg-white flex flex-col gap-5">
+      <DialogContent className="sm:max-w-[425px] w-[90vw] p-6 rounded-lg shadow-lg dark:bg-gray-900 bg-white flex flex-col gap-5">
         <DialogHeader>
           <DialogTitle className="text-center text-2xl font-semibold text-primary">Sign Up</DialogTitle>
           <p className="text-center text-sm text-gray-500 mb-4 text-primary">
@@ -120,6 +120,7 @@ const Sign = () => {
             placeholder="Username"
             required
             onChange={(e) => setUsername(e.target.value)}
+            className='dark:bg-transparent'
           />
 
           <Input
@@ -127,6 +128,7 @@ const Sign = () => {
             placeholder="Enter your Email"
             required
             onChange={(e) => setUserEmail(e.target.value)}
+            className='dark:bg-transparent'
           />
 
           <div className="relative">
@@ -135,6 +137,7 @@ const Sign = () => {
               placeholder="Enter your Password"
               required
               onChange={(e) => setUserPassword(e.target.value)}
+              className='dark:bg-transparent'
             />
             <i
               className={`absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer ${showPass ? 'bi bi-eye' : 'bi bi-eye-slash'}`}
@@ -148,6 +151,7 @@ const Sign = () => {
               placeholder="Confirm Password"
               required
               onChange={(e) => setConfirmPassword(e.target.value)}
+              className='dark:bg-transparent'
             />
             <i
               className={`absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer ${showConfirmPass ? 'bi bi-eye' : 'bi bi-eye-slash'}`}
@@ -155,7 +159,7 @@ const Sign = () => {
             ></i>
           </div>
 
-          <Button type="submit" className="w-full">
+          <Button type="submit" className="w-full dark:bg-transparent dark:border dark:border-slate-300 dark:text-slate-50">
             Create Account
           </Button>
         </form>
