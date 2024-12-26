@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-	darkMode: ["class", "class"], // Enables dark mode using the "class" strategy
+	darkMode: 'class', // Enables dark mode by adding the 'dark' class
 	content: [
 	  "./index.html", 
 	  "./src/**/*.{js,ts,jsx,tsx}" // Scans your HTML and JavaScript/TypeScript files for Tailwind classes
