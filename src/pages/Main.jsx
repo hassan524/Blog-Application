@@ -20,6 +20,7 @@ import {
   getDoc,
   collection,
   getDocs,
+
 } from "firebase/firestore";
 
 const Main = () => {
@@ -31,6 +32,8 @@ const Main = () => {
     SetUsers,
     IsDarkMode,
     SetIsDarkMode,
+    follow,
+
   } = useContext(AuthContext);
 
   if (IsDarkMode) {
@@ -38,6 +41,7 @@ const Main = () => {
   } else {
     document.documentElement.classList.remove('dark');
   }
+
 
   const [blogs, setBlogs] = useState(null);
   const [activeDialog, setActiveDialog] = useState(null);
@@ -304,7 +308,8 @@ const Main = () => {
                 <span className="text-[12px] italic">{user.username}</span>
               </div>
 
-              <button className="bg-slate-200 text-blue-400 dark:text-slate-50 dark:bg-background px-2 text-[10px] rounded-xl">
+              <button className="bg-slate-200 text-blue-400 dark:text-slate-50 dark:bg-background px-2 text-[10px] rounded-xl"
+                onClick={() => follow(user.id)}>
                 Follow
               </button>
             </div>

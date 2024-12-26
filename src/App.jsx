@@ -6,6 +6,7 @@ import Log from './pages/log';
 import Sign from './pages/sign';
 import Blogs from './main/Blogs';
 import MyBlogs from './main/MyBlogs';
+import Profile from './pages/Profile';
 
 const App = () => {
   return (
@@ -22,6 +23,7 @@ const App = () => {
         </Route>
 
         <Route path="/MyBlogs" element={<MyBlogs/>} />
+        <Route path="/Profile" element={<Profile />} />
 
 
       </Routes>

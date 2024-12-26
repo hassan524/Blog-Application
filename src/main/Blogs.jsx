@@ -72,7 +72,7 @@ const Blogs = () => {
 
                     BlogAuthor: data.username,
                     BlogAuthorId: data.id,
-                    BlogAuthorImage: data.photo,
+                    BlogAuthorImage: data.photo || null,
                     BlogTitle: BlogTitle,
                     BlogContent: BlogContent,
                     BlogImage: BlogImage || null,  // Set BlogImage to null if not provided

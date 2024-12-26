@@ -1,8 +1,11 @@
 import React, { createContext, useState } from 'react';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, setDoc, doc, updateDoc, arrayUnion, getDoc } from 'firebase/firestore';
 import { db } from '@/data/db/firebase';
+import { useSelector } from 'react-redux';
 
 const AuthContext = createContext();
+
+
 export const AuthProvider = ({ children }) => {
 
   const [IsLogOpen, SetIsLogOpen] = useState(false);
@@ -17,14 +20,17 @@ export const AuthProvider = ({ children }) => {
   const [IsBlogUpload, SetIsBlogUpload] = useState(false)
 
   const [Users, SetUsers] = useState([])
- 
+
   const [IsDarkMode, SetIsDarkMode] = useState(true)
+
+  const data = useSelector((state) => state.data.data);
+
 
 
   async function checkBlogs() {
 
     try {
-      
+
       const querySnapshot = await getDocs(collection(db, "posts"));
 
       const blogs = await querySnapshot.docs.map((doc) => ({
@@ -39,6 +45,41 @@ export const AuthProvider = ({ children }) => {
     }
 
   }
+
+  async function follow(followId) {
+    try {
+      console.log("Follow ID:", followId);
+  
+      const followUserDoc = doc(db, 'Users', followId);
+      const currentUserDoc = doc(db, 'Users', data.id);
+  
+      // Ensure the documents exist before updating
+      const followUserSnap = await getDoc(followUserDoc);
+      const currentUserSnap = await getDoc(currentUserDoc);
+  
+      if (!followUserSnap.exists()) {
+        console.error(`User with ID ${followId} does not exist.`);
+        return;
+      }
+      if (!currentUserSnap.exists()) {
+        console.error(`Current user with ID ${data.id} does not exist.`);
+        return;
+      }
+  
+      await updateDoc(followUserDoc, {
+        followers: arrayUnion(data.id),
+      });
+  
+      await updateDoc(currentUserDoc, {
+        following: arrayUnion(followId),
+      });
+  
+      console.log("Follow action completed successfully");
+    } catch (error) {
+      console.error("Error updating followers: ", error);
+    }
+  }
+  
 
   return (
 
@@ -63,7 +104,7 @@ export const AuthProvider = ({ children }) => {
         IsDarkMode,
         Users,
         SetUsers,
-
+        follow,
         checkBlogs // function
       }
 
