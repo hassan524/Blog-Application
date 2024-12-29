@@ -67,14 +67,14 @@ const Header = () => {
                 {isUserLogin ? (
                     <div className="sm:flex hidden items-center gap-10">
                         <NavLink to="/" style={navLinkStyles}>
-                           <span>Blogs</span>
+                            <span>Blogs</span>
                         </NavLink>
                         <NavLink to="/MyBlogs" style={navLinkStyles}>
-                           <span>My Blogs</span>
+                            <span>My Blogs</span>
                         </NavLink>
-                        <Link to="/Profile">
+                        <NavLink to="/Profile" style={navLinkStyles}>
                             <span>Profile</span>
-                        </Link>
+                        </NavLink>
 
                     </div>
                 ) : (

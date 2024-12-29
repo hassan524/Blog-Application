@@ -14,20 +14,36 @@ import {
   Dialog,
   DialogContent,
   DialogHeader,
-  DialogFooter,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+
 
 const MyBlogs = () => {
   const [myBlogs, setMyBlogs] = useState([]);
   const [openUpdateBlog, setOpenUpdateBlog] = useState(false);
+  const [DeleteAlertOpen, SetDeleteAlertOpen] = useState(false)
   const [selectedBlog, setSelectedBlog] = useState(null); // Blog to edit
   const [updatedTitle, setUpdatedTitle] = useState('');
   const [updatedContent, setUpdatedContent] = useState('');
   const [updatedImage, setUpdatedImage] = useState(null);
   const userLoginStatus = localStorage.getItem("IsUserLogin") === "true";
   const data = useSelector((state) => state.data.data);
+
+  const HandleDeleteAlert = () => {
+    SetDeleteAlertOpen(!DeleteAlertOpen)
+  }
+
 
   // Fetch blogs
   useEffect(() => {
@@ -108,9 +124,8 @@ const MyBlogs = () => {
       <Header />
       <main className="w-full flex justify-center relative gap-5 top-[10vh] sm:px-4 px-2 sm:pt-8 pt-3 pb-3 bg-slate-100 dark:bg-gray-900">
         <div
-          className={`min-h-[90vh] px-5 py-5 w-full bg-slate-50 dark:bg-gray-800 ${
-            userLoginStatus ? null : "py-5"
-          } flex justify-center rounded-md`}
+          className={`min-h-[90vh] px-5 py-5 w-full bg-slate-50 dark:bg-gray-800 ${userLoginStatus ? null : "py-5"
+            } flex justify-center rounded-md`}
         >
           <div className="flex flex-col gap-14">
             {myBlogs.length > 0 ? (
@@ -152,7 +167,7 @@ const MyBlogs = () => {
                         <Separator className="dark:bg-gray-600" />
                         <DropdownMenuItem
                           className="cursor-pointer"
-                          onClick={() => handleDeletePost(blog.id)}
+                          onClick={HandleDeleteAlert}
                         >
                           <span className="font-semibold">Delete</span>
                         </DropdownMenuItem>
@@ -178,7 +193,23 @@ const MyBlogs = () => {
                       />
                     </div>
                   )}
+
+                  <AlertDialog onOpenChange={SetDeleteAlertOpen} open={DeleteAlertOpen}>
+                    <AlertDialogContent className="sm:w-[80vw] w-[90vw]">
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This action cannot be undone. This will permanently delete your posts
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => handleDeletePost(blog.id)}>Continue</AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </div>
+
               ))
             ) : (
               <h2 className="text-center text-2xl text-gray-600">No blogs found.</h2>
@@ -225,6 +256,9 @@ const MyBlogs = () => {
             </form>
           </DialogContent>
         </Dialog>
+
+
+
       </main>
       <Sidebar />
     </>

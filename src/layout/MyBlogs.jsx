@@ -7,7 +7,7 @@ const MyBlogs = () => {
   return (
     <>
       <Header />
-        <div className="">assa</div>
+        {/* <div className=""></div>  */}
      <Sidebar />
     </>
   )

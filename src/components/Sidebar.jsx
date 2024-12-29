@@ -15,6 +15,16 @@ import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { auth, db } from '@/data/db/firebase';
 import { setDataOfCurrentUser } from '@/data/redux/CurrentUserInfo';
 import { useDispatch, useSelector } from 'react-redux';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 const Sidebar = () => {
   const {
@@ -25,13 +35,20 @@ const Sidebar = () => {
     SetCurrIsUserLogin,
     SetIsUserLogOut,
     Users,
+    follow,
   } = useContext(AuthContext);
 
   const [CurrentUser, setCurrentUser] = useState(null);
+  const [LogAlertOpen, SetLogAlertOpen] = useState(false);
+  const [followedUsers, setFollowedUsers] = useState([]);
   const fileInputRef = useRef(null);
   const dispatch = useDispatch();
   const data = useSelector((state) => state.data.data);
   const userLoginStatus = localStorage.getItem('IsUserLogin') === 'true';
+
+  const HandleLogAlert = () => {
+    SetLogAlertOpen(!LogAlertOpen);
+  };
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -39,7 +56,6 @@ const Sidebar = () => {
         setCurrentUser(user);
         const docRef = doc(db, 'Users', user.uid);
         const docSnap = await getDoc(docRef);
-
         if (docSnap.exists()) {
           dispatch(
             setDataOfCurrentUser({
@@ -47,32 +63,31 @@ const Sidebar = () => {
               id: user.uid,
             })
           );
-        } else {
-          console.error('No such document!');
         }
       } else {
         setCurrentUser(null);
         SetCurrIsUserLogin(false);
       }
     });
-
     return () => unsubscribe();
   }, [dispatch]);
 
   const uploadImageToImgBB = async (file) => {
     const formData = new FormData();
     formData.append('image', file);
-
-    const response = await fetch('https://api.imgbb.com/1/upload?key=adaba9947bd01d4aabea6879dd7e3970', {
-      method: 'POST',
-      body: formData,
-    });
-
-    const result = await response.json();
-    if (result.success) {
-      return result.data.url;
+    try {
+      const response = await fetch('https://api.imgbb.com/1/upload?key=adaba9947bd01d4aabea6879dd7e3970', {
+        method: 'POST',
+        body: formData,
+      });
+      const result = await response.json();
+      if (result.success) {
+        return result.data.url;
+      }
+      return null;
+    } catch {
+      return null;
     }
-    return null;
   };
 
   const handleImageClick = () => {
@@ -83,20 +98,14 @@ const Sidebar = () => {
     const file = event.target.files[0];
     if (file) {
       const imageUrl = await uploadImageToImgBB(file);
-
       if (imageUrl) {
         const userRef = doc(db, 'Users', CurrentUser.uid);
-
         try {
           await updateDoc(userRef, {
             photo: imageUrl,
           });
           dispatch(setDataOfCurrentUser({ ...data, photo: imageUrl }));
-        } catch (error) {
-          console.error('Error updating Firestore document:', error);
-        }
-      } else {
-        console.error('Image upload failed');
+        } catch {}
       }
     }
   };
@@ -128,18 +137,27 @@ const Sidebar = () => {
 
   const navLinkStyles = ({ isActive }) => {
     return {
-      textDecoration: isActive ? "underline" : "none",
+      textDecoration: isActive ? 'underline' : 'none',
     };
-};
+  };
 
+  const handleFollow = (id) => {
+    if (!userLoginStatus) {
+      alert('Please Login First');
+      return;
+    }
+    if (!followedUsers.includes(id)) {
+      setFollowedUsers((prev) => [...prev, id]);
+      follow(id);
+    }
+  };
 
   return (
     <div
-      className={`bg-slate-50 dark:bg-gray-800 z-50 sm:w-[20rem] w-[70vw] py-4 px-5 h-full fixed flex flex-col top-0 justify-between left-0 shadow-md dark:shadow-sm dark:shadow-slate-50 ${
+      className={`bg-slate-50 dark:bg-gray-800 z-50 sm:w-[20rem] w-[85vw] py-4 px-5 h-full fixed flex flex-col top-0 justify-between left-0 shadow-md dark:shadow-sm dark:shadow-slate-50 ${
         IsSideBarOpen ? 'translate-x-[-100%]' : 'translate-x-0'
       } transition-all ease-out`}
     >
-      {/* Top Section */}
       <div className="w-full flex justify-end flex-col gap-8">
         <div className="flex justify-end">
           <i
@@ -147,7 +165,6 @@ const Sidebar = () => {
             className="bi bi-list cursor-pointer rounded-full inline-flex"
           ></i>
         </div>
-
         <div className="flex flex-col gap-4">
           {userLoginStatus ? (
             <div className="flex flex-col gap-8">
@@ -161,7 +178,6 @@ const Sidebar = () => {
                     src={data?.photo || '/NoUser.png'}
                     alt="User Profile"
                   />
-                  {/* Pencil Icon on Hover */}
                   <div className="absolute top-2 right-2 hidden group-hover:flex justify-center items-center w-8 h-8 bg-blue-500 text-white rounded-full">
                     <i className="bi bi-pencil-fill"></i>
                   </div>
@@ -182,17 +198,16 @@ const Sidebar = () => {
               </div>
             </div>
           ) : (
-            <div className="">
+            <div>
               <div className="mt-5 flex gap-5 flex-col sm:hidden">
                 <Link to="/Sign">
                   <div
-                    className="w-full flex items-center justify-between p-1 rounded-md cursor-pointer dark:hover:bg-gray-800 hover:bg-slate-100 "
+                    className="w-full flex items-center justify-between p-1 rounded-md cursor-pointer dark:hover:bg-gray-800 hover:bg-slate-100"
                     onClick={HandleRegister}
                   >
                     <span className="text-lg">Sign up</span>
                     <i className="bi bi-people text-xl"></i>
                   </div>
-                  <DropdownMenuSeparator className="dark:bg-gray-700" />
                 </Link>
                 <Link to="/log">
                   <div
@@ -202,7 +217,6 @@ const Sidebar = () => {
                     <span className="text-lg">Log in</span>
                     <i className="bi bi-box-arrow-right text-xl"></i>
                   </div>
-                  <DropdownMenuSeparator className="dark:bg-gray-700" />
                 </Link>
               </div>
               <div className="xl:flex hidden mt-4 justify-center items-center">
@@ -210,32 +224,44 @@ const Sidebar = () => {
               </div>
             </div>
           )}
-           <div className="w-full h-[40vh] xl:hidden">
-            <div className="h-[100%] flex flex-col gap-5 py-7 overflow-x-scroll px-2 bg-slate-100 dark:bg-gray-800 rounded-md">
-              {Users?.map((user) => (
-                <div key={user.id} className="flex justify-between items-center">
-                  <div className="flex gap-3 items-center">
-                    <div className="h-7 w-7 overflow-hidden rounded-full">
-                      <img src={user.photo || 'NoUser.png'} alt="User Avatar" />
+          <div className="w-full mt-5 h-[40vh] xl:hidden">
+            <div className="h-full flex flex-col bg-slate-100 dark:bg-gray-800 rounded-md shadow-md">
+              <div className="h-12 w-full bg-slate-200 dark:bg-gray-900 text-white flex justify-center items-center rounded-t-md">
+                <h3 className="text-md font-semibold">Users</h3>
+              </div>
+              <div className="flex-1 overflow-y-auto py-8">
+                {Users?.filter((user) => user.username !== data?.username).map((user) => (
+                  <div
+                    key={user.id}
+                    className="flex justify-between items-center rounded-lg cursor-pointer p-3 mb-3 hover:shadow-lg transition-shadow"
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className="h-9 w-9 overflow-hidden rounded-full">
+                        <img
+                          src={user.photo || 'NoUser.png'}
+                          alt="User Avatar"
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <span className="text-xs font-medium text-gray-800 dark:text-gray-100">
+                        {user.username}
+                      </span>
                     </div>
-                    <span className='sm:text-xs italic text-[12px]'>{user.username}</span>
-
-                    {/* Show "admin" if it's the current user */}
-                    {user.username === data?.username && (
-                      <span className="text-[10px] mr-3">(admin)</span>
-                    )}
-                  </div>
-
-                  {/* Show "Follow" button only for other users */}
-                  {user.username !== data?.username && (
-                    <button className='bg-slate-200 dark:bg-background  text-blue-400 dark:text-slate-50 sm:px-5 py-1 px-4 sm:text-xs text-[10px] rounded-xl'>
-                      Follow
+                    <button
+                      className={`hover:scale-105 ${
+                        followedUsers.includes(user.id)
+                          ? 'text-slate-300'
+                          : 'text-blue-400'
+                      } hover:shadow-lg transition-all ease dark:text-slate-50 sm:px-5 py-[6px] px-4 sm:text-xs text-[10px] rounded-xl`}
+                      onClick={() => handleFollow(user.id)}
+                    >
+                      {followedUsers.includes(user.id) ? 'Following' : 'Follow'}
                     </button>
-                  )}
-                </div>
-              ))}
+                  </div>
+                ))}
+              </div>
             </div>
-          </div> 
+          </div>
         </div>
       </div>
       <div className="w-full">
@@ -251,27 +277,46 @@ const Sidebar = () => {
               <span>Settings</span>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            {userLoginStatus ? (
+            {userLoginStatus && (
               <>
-                <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
-                  <span className="font-semibold">Logout</span>
+                <DropdownMenuItem onClick={HandleLogAlert}>
+                  <span>Logout</span>
                 </DropdownMenuItem>
-                {/* <DropdownMenuSeparator />  */}
                 <DropdownMenuItem className="cursor-pointer sm:hidden">
-                <NavLink style={navLinkStyles}  to='/'>
-                  <span className="font-semibold">Blogs</span>
+                  <NavLink style={navLinkStyles} to="/">
+                    <span className="font-semibold">Blogs</span>
                   </NavLink>
                 </DropdownMenuItem>
-                {/* <DropdownMenuSeparator />  */}
                 <DropdownMenuItem className="cursor-pointer sm:hidden">
-                <NavLink style={navLinkStyles} to='/MyBlogs'>
-                  <span className="font-semibold">My Blogs</span>
+                  <NavLink style={navLinkStyles} to="/MyBlogs">
+                    <span className="font-semibold">My Blogs</span>
                   </NavLink>
+
+                </DropdownMenuItem>
+                <DropdownMenuItem className="cursor-pointer sm:hidden">
+                  <NavLink style={navLinkStyles} to="/Profile">
+                    <span className="font-semibold">My Profile</span>
+                  </NavLink>
+
                 </DropdownMenuItem>
               </>
-            ) : null}
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
+        <AlertDialog onOpenChange={SetLogAlertOpen} open={LogAlertOpen}>
+          <AlertDialogContent className="sm:w-[80vw] w-[90vw]">
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone. This will Logout your acount.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={handleLogout}>Continue</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );
