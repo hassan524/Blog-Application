@@ -3,8 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "description": "A professional blog application with authentication and user management.",
-  "author": "Hassan Rehan hrehan752@gmail.com",
+  "author": "Hassan Rehan",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
