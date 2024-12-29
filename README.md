@@ -1,8 +1,31 @@
-# React + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+# *Blog Application*
 
-Currently, two official plugins are available:
+*This is one of the projects I have built using **React and Firebase,** with complete authentication.*
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## *Features*
+
+- **User Authentication:** user login and registration and logout using Firebase Authentication.
+
+- **Manages Blog using realtime fireStore Database:** you can post blogs and update delete with images
+
+- **Profile & Follow:** You can Follow someone and you can see how much follower you have on your profile
+
+## *Getting Started*
+
+### Install  dependencies
+
+```bash
+npm install
+```
+### Start application 
+
+ ```bash
+npm run dev
+```
+
+### Build Application
+
+ ```bash
+npm run build
+```
